@@ -2,7 +2,6 @@ vim.pack.add { Gh 'nvim-mini/mini.nvim' }
 
 if vim.g.have_nerd_font then
   require('mini.icons').setup()
-  -- Used for backwards compatibility with plugins that require `nvim-web-devicons` (e.g. telescope.nvim)
   MiniIcons.mock_nvim_web_devicons()
 end
 
@@ -47,10 +46,10 @@ statusline.setup {
   content = {
     active = function()
       local mode, mode_hl = MiniStatusline.section_mode { trunc_width = 120 }
-      
+
       local git = MiniStatusline.section_git { trunc_width = 40 }
       local diff = MiniStatusline.section_diff { trunc_width = 75 }
-      
+
       -- Simpan status git/diff jika kita berada di buffer normal,
       -- gunakan cache jika kita berada di neo-tree atau buffer khusus lainnya
       if vim.bo.buftype == '' or vim.bo.buftype == 'acwrite' then

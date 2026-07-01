@@ -28,14 +28,3 @@ vim.api.nvim_create_autocmd('PackChanged', {
     end
   end,
 })
-
--- vim.api.nvim_create_autocmd('VimEnter', {
---   callback = function()
---     if vim.fn.argc() == 0 then
---       local opts = require('telescope.themes').get_dropdown {
---         previewer = false,
---       }
---       require('telescope').extensions['recent-files'].recent_files(opts)
---     end
---   end,
--- })

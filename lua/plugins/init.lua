@@ -18,3 +18,5 @@ for file_name, type in vim.fs.dir(plugins_dir, { follow = true }) do
     require('plugins.' .. module)
   end
 end
+
+require 'plugins.mini'

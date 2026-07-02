@@ -1,27 +1,4 @@
-vim.pack.add { Gh 'nvim-mini/mini.nvim' }
-
-if vim.g.have_nerd_font then
-  require('mini.icons').setup()
-  -- Used for backwards compatibility with plugins that require `nvim-web-devicons` (e.g. telescope.nvim)
-  MiniIcons.mock_nvim_web_devicons()
-end
-
---  - va)  - [V]isually select [A]round [)]paren
---  - yiiq - [Y]ank [I]nside [I]+1 [Q]uote
---  - ci'  - [C]hange [I]nside [']quote
-require('mini.ai').setup {
-  -- NOTE: Avoid conflicts with the built-in incremental selection mappings on Neovim>=0.12 (see `:help treesitter-incremental-selection`)
-  mappings = {
-    around_next = 'aa',
-    inside_next = 'ii',
-  },
-  n_lines = 500,
-}
--- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
--- - sd'   - [S]urround [D]elete [']quotes
--- - sr)'  - [S]urround [R]eplace [)] [']
-require('mini.surround').setup()
-
+-- NOTE: STATUS LINE
 local statusline = require 'mini.statusline'
 
 -- Cache untuk menyimpan status git terakhir dari buffer normal
@@ -47,12 +24,10 @@ statusline.setup {
   content = {
     active = function()
       local mode, mode_hl = MiniStatusline.section_mode { trunc_width = 120 }
-      
+
       local git = MiniStatusline.section_git { trunc_width = 40 }
       local diff = MiniStatusline.section_diff { trunc_width = 75 }
-      
-      -- Simpan status git/diff jika kita berada di buffer normal,
-      -- gunakan cache jika kita berada di neo-tree atau buffer khusus lainnya
+
       if vim.bo.buftype == '' or vim.bo.buftype == 'acwrite' then
         last_git = git
         last_diff = diff

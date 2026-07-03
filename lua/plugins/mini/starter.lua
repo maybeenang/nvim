@@ -10,17 +10,21 @@ local header = [[
 ╚═╝  ╚═══╝╚══════╝ ╚═════╝   ╚═══╝  ╚═╝╚═╝     ╚═╝
 ]]
 
-local _start = vim.fn.reltime()
-local function footer()
-  local elapsed_ms = math.floor(vim.fn.reltimefloat(vim.fn.reltime(_start)) * 1000 + 0.5)
-  return string.format('startup time : %dms', elapsed_ms)
-end
-
 starter.setup {
   header = header,
-  footer = footer,
+  footer = '',
   items = {
-    starter.sections.recent_files(3, false, false),
+    {
+      name = 'Restore Session',
+      action = ':Persisted load',
+      section = 'Sessions',
+    },
+    starter.sections.recent_files(3, true, function(path)
+      local cwd = vim.fn.getcwd() .. '/'
+      local rel = path:find(cwd, 1, true) and path:sub(#cwd + 1) or vim.fn.fnamemodify(path, ':t')
+      if #rel > 50 then rel = '…' .. rel:sub(-49) end
+      return ' ' .. rel
+    end),
     starter.sections.builtin_actions(),
   },
   content_hooks = {

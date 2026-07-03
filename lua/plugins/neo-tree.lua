@@ -4,12 +4,35 @@ vim.pack.add {
   'https://github.com/MunifTanjim/nui.nvim',
 }
 
-vim.keymap.set('n', '<leader>e', '<Cmd>Neotree reveal<CR>', { desc = 'NeoTree reveal', silent = true })
+vim.keymap.set('n', '<leader>e', function()
+  local bufname = vim.api.nvim_buf_get_name(0)
+  local is_real_file = vim.bo.buftype == '' and bufname ~= '' and vim.fn.filereadable(bufname) == 1
+  local in_cwd = is_real_file and vim.startswith(vim.fn.fnamemodify(bufname, ':p:h'), vim.fn.getcwd())
+
+  if is_real_file and in_cwd then
+    vim.cmd 'Neotree reveal'
+  else
+    vim.cmd 'Neotree toggle'
+  end
+end, { desc = 'NeoTree reveal/toggle', silent = true })
 
 require('neo-tree').setup {
+  auto_clean_after_session_restore = true,
+  clipboard = {
+    sync = 'global',
+  },
+  close_if_last_window = true,
+  default_component_configs = {
+    icon = {
+      use_filtered_colors = false,
+    },
+    name = {
+      use_filtered_colors = false,
+    },
+  },
   filesystem = {
     filtered_items = {
-      visible = true, -- This is what you want: If you set this to `true`, all "hide" just mean "dimmed out"
+      visible = true,
     },
     window = {
       width = 30,
@@ -17,5 +40,16 @@ require('neo-tree').setup {
         ['<leader>e'] = 'close_window',
       },
     },
+  },
+  source_selector = {
+    winbar = true,
+    statusline = false,
+    show_scrolled_off_parent_node = false, -- ini masih full path, kalau bisa tampilkan foldernya saja
+    sources = {
+      { source = 'filesystem' },
+      { source = 'git_status' },
+      { source = 'buffers' },
+    },
+    truncation_character = '…', -- character to use when truncating the tab label
   },
 }

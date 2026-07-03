@@ -18,5 +18,11 @@ vim.keymap.set({ 'n', 'i', 'v' }, '<S-Down>', ':resize -2<CR>', { noremap = true
 vim.keymap.set({ 'n', 'i', 'v' }, '<S-Left>', ':vertical resize +2<CR>', { noremap = true })
 vim.keymap.set({ 'n', 'i', 'v' }, '<S-Right>', ':vertical resize -2<CR>', { noremap = true })
 
--- keymap
+-- diagnostics
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+
+-- move cursor in insert mode
+vim.keymap.set('i', '<C-h>', '<Left>', { desc = 'Move cursor to the left' })
+vim.keymap.set('i', '<C-l>', '<Right>', { desc = 'Move cursor to the right' })
+vim.keymap.set('i', '<C-j>', '<Down>', { desc = 'Move cursor down' })
+vim.keymap.set('i', '<C-k>', '<Up>', { desc = 'Move cursor up' })

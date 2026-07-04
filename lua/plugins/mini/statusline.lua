@@ -1,3 +1,5 @@
+vim.pack.add { Gh 'JulienZD/copilot-statusline.nvim' }
+
 local statusline = require 'mini.statusline'
 
 -- Cache untuk menyimpan status git terakhir dari buffer normal
@@ -5,8 +7,7 @@ local last_git = ''
 local last_diff = ''
 
 local function section_lsp_names()
-  local get_clients = vim.lsp.get_clients or vim.lsp.get_active_clients
-  local clients = get_clients { bufnr = 0 }
+  local clients = vim.lsp.get_clients { bufnr = 0 }
 
   if #clients == 0 then return '' end
 
@@ -79,6 +80,8 @@ statusline.setup {
 
       local diagnostics = MiniStatusline.section_diagnostics { trunc_width = 75 }
 
+      local copilot = require('copilot-statusline').section_copilot { trunc_width = 75 }
+
       local lsp = section_lsp_names()
       local formatters = section_formatters()
       local linters = section_linters()
@@ -91,7 +94,7 @@ statusline.setup {
         '%<',
         { hl = 'MiniStatuslineFilename' },
         '%=',
-        { hl = 'MiniStatuslineFileinfo', strings = { lsp, formatters, linters } },
+        { hl = 'MiniStatuslineFileinfo', strings = { copilot, lsp, formatters, linters } },
         { hl = mode_hl, strings = { fileinfo } },
       }
     end,

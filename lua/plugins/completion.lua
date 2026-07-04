@@ -2,6 +2,13 @@ vim.pack.add { { src = Gh 'L3MON4D3/LuaSnip', version = vim.version.range '2.*' 
 require('luasnip.loaders.from_vscode').lazy_load()
 require('luasnip').setup {}
 
+vim.api.nvim_create_autocmd('InsertLeave', {
+  callback = function()
+    local ls_ok, ls = pcall(require, 'luasnip')
+    if ls_ok and ls.session.current_nodes[vim.api.nvim_get_current_buf()] and not ls.session.jump_active then ls.unlink_current() end
+  end,
+})
+
 local blink_plugins = {
   Gh 'saghen/blink.lib',
   Gh 'saghen/blink.cmp',
@@ -21,6 +28,19 @@ cmp.setup {
     preset = 'enter',
     ['<C-j>'] = { 'select_next', 'fallback' },
     ['<C-k>'] = { 'select_prev', 'fallback' },
+    ['<Tab>'] = {
+      function()
+        if require('sidekick').nes_jump_or_apply() then return true end
+      end,
+      function()
+        if require('copilot.suggestion').is_visible() then
+          require('copilot.suggestion').accept()
+          return true
+        end
+      end,
+      'snippet_forward',
+      'fallback',
+    },
   },
 
   appearance = {
@@ -124,4 +144,35 @@ cmp.setup {
   },
   fuzzy = { implementation = 'rust' },
   signature = { enabled = true, window = { border = 'single', show_documentation = true } },
+
+  cmdline = {
+    enabled = true,
+    keymap = {
+      preset = 'cmdline',
+      ['<C-j>'] = { 'select_next', 'fallback' },
+      ['<C-k>'] = { 'select_prev', 'fallback' },
+    },
+    completion = {
+      menu = {
+        auto_show = true,
+      },
+      list = {
+        selection = {
+          preselect = true,
+          auto_insert = true,
+        },
+      },
+      ghost_text = { enabled = true },
+    },
+    sources = {
+      default = function()
+        local type = vim.fn.getcmdtype()
+        -- Search cmdline (/ atau ?)
+        if type == '/' or type == '?' then return { 'buffer' } end
+        -- Command cmdline (:)
+        if type == ':' or type == '@' then return { 'cmdline' } end
+        return {}
+      end,
+    },
+  },
 }

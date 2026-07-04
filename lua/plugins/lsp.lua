@@ -7,8 +7,8 @@ vim.api.nvim_create_autocmd('LspAttach', {
     end
 
     map('grn', vim.lsp.buf.rename, '[R]e[n]ame')
-    map('gra', vim.lsp.buf.code_action, '[G]oto Code [A]ction', { 'n', 'x' })
-    map('grD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+    map('<leader>ca', vim.lsp.buf.code_action, '[G]oto Code [A]ction', { 'n', 'x' })
+    map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
 
     local client = vim.lsp.get_client_by_id(event.data.client_id)
     if client and client:supports_method('textDocument/documentHighlight', event.buf) then
@@ -40,58 +40,6 @@ vim.api.nvim_create_autocmd('LspAttach', {
   end,
 })
 
----@type table<string, vim.lsp.Config>
-local servers = {
-  -- clangd = {},
-  gopls = {},
-  intelephense = {},
-  laravel_ls = {},
-
-  -- pyright = {},
-  -- rust_analyzer = {},
-  --
-  -- Some languages (like typescript) have entire language plugins that can be useful:
-  --    https://github.com/pmizio/typescript-tools.nvim
-  --
-  -- But for many setups, the LSP (`ts_ls`) will work just fine
-  -- ts_ls = {},
-
-  stylua = {},
-
-  lua_ls = {
-    on_init = function(client)
-      client.server_capabilities.documentFormattingProvider = false -- Disable formatting (formatting is done by stylua)
-
-      if client.workspace_folders then
-        local path = client.workspace_folders[1].name
-        if path ~= vim.fn.stdpath 'config' and (vim.uv.fs_stat(path .. '/.luarc.json') or vim.uv.fs_stat(path .. '/.luarc.jsonc')) then return end
-      end
-
-      client.config.settings.Lua = vim.tbl_deep_extend('force', client.config.settings.Lua, {
-        runtime = {
-          version = 'LuaJIT',
-          path = { 'lua/?.lua', 'lua/?/init.lua' },
-        },
-        workspace = {
-          checkThirdParty = false,
-          -- NOTE: this is a lot slower and will cause issues when working on your own configuration.
-          --  See https://github.com/neovim/nvim-lspconfig/issues/3189
-          library = vim.tbl_extend('force', vim.api.nvim_get_runtime_file('', true), {
-            '${3rd}/luv/library',
-            '${3rd}/busted/library',
-          }),
-        },
-      })
-    end,
-    ---@type lspconfig.settings.lua_ls
-    settings = {
-      Lua = {
-        format = { enable = false }, -- Disable formatting (formatting is done by stylua)
-      },
-    },
-  },
-}
-
 vim.pack.add {
   Gh 'neovim/nvim-lspconfig',
   Gh 'mason-org/mason.nvim',
@@ -100,15 +48,24 @@ vim.pack.add {
 }
 
 require('mason').setup {}
-
-local ensure_installed = vim.tbl_keys(servers or {})
-vim.list_extend(ensure_installed, {
-  -- You can add other tools here that you want Mason to install
-})
+local ensure_installed = {
+  'lua-language-server',
+  'stylua',
+  'prettierd',
+  'gopls',
+  'intelephense',
+  'laravel-ls',
+  'emmet-language-server',
+}
 
 require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
-for name, server in pairs(servers) do
-  vim.lsp.config(name, server)
-  vim.lsp.enable(name)
-end
+vim.lsp.enable {
+  'lua_ls',
+  'gopls',
+  'intelephense',
+  'laravel_ls',
+  -- 'ts_ls',
+  'emmet_language_server',
+  'vtsls',
+}

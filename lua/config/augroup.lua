@@ -28,3 +28,9 @@ vim.api.nvim_create_autocmd('PackChanged', {
     end
   end,
 })
+
+vim.api.nvim_create_autocmd({ 'BufEnter' }, {
+  desc = 'Winbar',
+  group = vim.api.nvim_create_augroup('auto_cd', { clear = true }),
+  callback = function() vim.wo.winbar = vim.fn.expand '%:.' end,
+})

@@ -26,3 +26,22 @@ vim.keymap.set('i', '<C-h>', '<Left>', { desc = 'Move cursor to the left' })
 vim.keymap.set('i', '<C-l>', '<Right>', { desc = 'Move cursor to the right' })
 vim.keymap.set('i', '<C-j>', '<Down>', { desc = 'Move cursor down' })
 vim.keymap.set('i', '<C-k>', '<Up>', { desc = 'Move cursor up' })
+
+-- move up and down with wrapped lines
+vim.keymap.set('n', 'j', 'v:count == 0 ? "gj" : "j"', { expr = true, silent = true })
+vim.keymap.set('n', 'k', 'v:count == 0 ? "gk" : "k"', { expr = true, silent = true })
+
+-- bufferline
+vim.keymap.set({ 'n' }, '<leader>bd', ':bd<CR>', { noremap = true, desc = 'Close Buffer' })
+vim.keymap.set({ 'n' }, '<leader>bD', ':%bd|e#|bd#<cr>', { noremap = true, desc = 'Close Buffer' })
+
+-- comments
+vim.api.nvim_set_keymap('n', '<c-_>', 'gcc', { noremap = false })
+vim.api.nvim_set_keymap('v', '<c-_>', 'gc', { noremap = false })
+-- add comment while instert mode
+vim.api.nvim_set_keymap('i', '<c-_>', '<esc>gcci', { noremap = false })
+
+vim.api.nvim_set_keymap('n', '<c-/>', 'gcc', { noremap = false })
+vim.api.nvim_set_keymap('v', '<c-/>', 'gc', { noremap = false })
+-- add comment while instert mode
+vim.api.nvim_set_keymap('i', '<c-/>', '<esc>gcci', { noremap = false })

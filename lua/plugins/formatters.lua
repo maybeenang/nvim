@@ -1,15 +1,38 @@
 vim.pack.add { Gh 'stevearc/conform.nvim' }
 require('conform').setup {
-  notify_on_error = false,
-  format_on_save = function(bufnr)
-    -- You can specify filetypes to autoformat on save here:
+  formatters_by_ft = {
+    lua = { 'stylua' },
+    typescript = { 'prettierd', stop_after_first = true },
+    typescriptreact = { 'prettierd', stop_after_first = true },
+    go = {
+      'gofmt',
+      'goimports-reviser',
+      'golines',
+    },
+  },
+  formatters = {
+    ['goimports-reviser'] = {
+      command = 'goimports-reviser',
+      args = { '-rm-unused', '-set-alias', '-format', '$FILENAME' },
+      stdin = false,
+    },
+  },
+  notify_on_error = true,
+  format_after_save = function(bufnr)
     local enabled_filetypes = {
       lua = true,
       typescript = true,
       typescriptreact = true,
+      go = true,
+      php = true,
     }
     if enabled_filetypes[vim.bo[bufnr].filetype] then
-      return { timeout_ms = 500 }
+      return {
+        lsp_fallback = true,
+        async = true,
+        timeout_ms = 500,
+        quiet = true,
+      }
     else
       return nil
     end
@@ -17,17 +40,18 @@ require('conform').setup {
   default_format_opts = {
     lsp_format = 'fallback', -- Use external formatters if configured below, otherwise use LSP formatting. Set to `false` to disable LSP formatting entirely.
   },
-  -- You can also specify external formatters in here.
-  formatters_by_ft = {
-    -- rust = { 'rustfmt' },
-    -- Conform can also run multiple formatters sequentially
-    -- python = { "isort", "black" },
-    --
-    -- You can use 'stop_after_first' to run the first available formatter from the list
-    -- javascript = { "prettierd", "prettier", stop_after_first = true },
-    typescript = { 'prettierd', 'prettier', stop_after_first = true },
-    typescriptreact = { 'prettierd', 'prettier', stop_after_first = true },
-  },
 }
 
 vim.keymap.set({ 'n', 'v' }, '<leader>f', function() require('conform').format { async = true } end, { desc = '[F]ormat buffer' })
+
+vim.api.nvim_create_user_command('Format', function(args)
+  local range = nil
+  if args.count ~= -1 then
+    local end_line = vim.api.nvim_buf_get_lines(0, args.line2 - 1, args.line2, true)[1]
+    range = {
+      start = { args.line1, 0 },
+      ['end'] = { args.line2, end_line:len() },
+    }
+  end
+  require('conform').format { async = true, lsp_format = 'fallback', range = range, quite = true }
+end, { range = true })

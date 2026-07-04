@@ -1,19 +1,3 @@
---  - va)  - [V]isually select [A]round [)]paren
---  - yiiq - [Y]ank [I]nside [I]+1 [Q]uote
---  - ci'  - [C]hange [I]nside [']quote
-require('mini.ai').setup {
-  -- NOTE: Avoid conflicts with the built-in incremental selection mappings on Neovim>=0.12 (see `:help treesitter-incremental-selection`)
-  mappings = {
-    around_next = 'aa',
-    inside_next = 'ii',
-  },
-  n_lines = 500,
-}
--- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
--- - sd'   - [S]urround [D]elete [']quotes
--- - sr)'  - [S]urround [R]eplace [)] [']
-require('mini.surround').setup()
-
 local statusline = require 'mini.statusline'
 
 -- Cache untuk menyimpan status git terakhir dari buffer normal
@@ -31,7 +15,49 @@ local function section_lsp_names()
     table.insert(names, client.name)
   end
 
-  return '󰌘 ' .. table.concat(names, ', ')
+  return '[LSP]' .. table.concat(names, ',')
+end
+
+-- filetype only, with icon
+local function section_filetype()
+  local filetype = vim.bo.filetype
+  if filetype == '' then return '' end
+
+  local icon = ''
+  if vim.g.have_nerd_font then icon = MiniIcons.get('filetype', filetype) or '' end
+
+  return icon .. ' ' .. filetype
+end
+
+-- get formatters from conform
+local function section_formatters()
+  local formatters = require('conform').list_formatters_for_buffer(0)
+
+  if #formatters == 0 then return '' end
+
+  local formatter_names = {}
+  for _, formatter in ipairs(formatters) do
+    table.insert(formatter_names, formatter.name)
+  end
+
+  return '[FMT]' .. table.concat(formatters, ',')
+end
+
+-- get linters from lint
+local function section_linters()
+  local lint = require 'lint'
+  local filetype = vim.bo.filetype
+
+  local linters = lint.linters_by_ft[filetype] or {}
+
+  if #linters == 0 then return '' end
+
+  local linter_names = {}
+  for _, linter in ipairs(linters) do
+    table.insert(linter_names, linter)
+  end
+
+  return '[LINT]' .. table.concat(linter_names, ',')
 end
 
 statusline.setup {
@@ -52,11 +78,12 @@ statusline.setup {
       end
 
       local diagnostics = MiniStatusline.section_diagnostics { trunc_width = 75 }
+
       local lsp = section_lsp_names()
-      local filename = MiniStatusline.section_filename { trunc_width = 140 }
-      local fileinfo = MiniStatusline.section_fileinfo { trunc_width = 120 }
-      local location = MiniStatusline.section_location { trunc_width = 75 }
-      local search = MiniStatusline.section_searchcount { trunc_width = 75 }
+      local formatters = section_formatters()
+      local linters = section_linters()
+
+      local fileinfo = section_filetype()
 
       return MiniStatusline.combine_groups {
         { hl = mode_hl, strings = { mode:upper() } },
@@ -64,8 +91,8 @@ statusline.setup {
         '%<',
         { hl = 'MiniStatuslineFilename' },
         '%=',
-        { hl = 'MiniStatuslineFileinfo', strings = { lsp, fileinfo } },
-        { hl = mode_hl, strings = { search, location } },
+        { hl = 'MiniStatuslineFileinfo', strings = { lsp, formatters, linters } },
+        { hl = mode_hl, strings = { fileinfo } },
       }
     end,
   },

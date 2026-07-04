@@ -23,8 +23,8 @@ do
   vim.o.splitright = true
   vim.o.splitbelow = true
 
-  vim.o.list = true
-  vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
+  -- vim.o.list = true
+  -- vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
 
   vim.o.inccommand = 'split'
 
@@ -36,4 +36,13 @@ do
   vim.o.scrolloff = 10
 
   vim.o.confirm = true
+
+  -- indentation
+  vim.o.tabstop = 2
+  vim.o.shiftwidth = 2
+  vim.o.softtabstop = 2
+  vim.o.expandtab = true
+  vim.o.smartindent = true
+  vim.o.autoindent = true
+  vim.o.wrap = false
 end

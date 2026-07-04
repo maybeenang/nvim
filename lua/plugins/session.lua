@@ -10,7 +10,10 @@ vim.api.nvim_create_autocmd('User', {
   pattern = 'PersistedSavePre',
   callback = function()
     for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-      if vim.bo[buf].filetype == 'neo-tree' then vim.api.nvim_buf_delete(buf, { force = true }) end
+      local ignored_filetypes = { 'neo-tree', 'TelescopePrompt', 'Trouble', 'qf', 'welcome', 'ministarter' }
+      local filetype = vim.bo[buf].filetype
+      local is_ignored = vim.tbl_contains(ignored_filetypes, filetype)
+      if is_ignored then vim.api.nvim_buf_delete(buf, { force = true }) end
     end
   end,
 })
